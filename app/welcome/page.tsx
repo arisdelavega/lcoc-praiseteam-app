@@ -28,7 +28,7 @@ export default function WelcomePage() {
         <img
           src="/logo.png"
           alt="Church Logo"
-          className="w-35 h-35 object-contain"
+          className="w-15 h-15 object-contain"
         />
       </div>
 
