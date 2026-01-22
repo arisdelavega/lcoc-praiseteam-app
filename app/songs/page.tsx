@@ -83,7 +83,7 @@ export default function SongsPage() {
 
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl md:text-4xl font-bold text-blue-500 mb-6 text-left">
-          
+          Songs Library
         </h1>
 
         {/* 🔍 SEARCH BAR */}
@@ -150,7 +150,18 @@ export default function SongsPage() {
                       ))}
                     </div>
 
-                    <pre className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded-lg border overflow-x-auto">
+                    {/* 🔧 Fixed lyrics rendering for mobile */}
+                    <pre
+                      className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded-lg border overflow-x-auto"
+                      style={{
+                        WebkitFontSmoothing: "antialiased",
+                        MozOsxFontSmoothing: "grayscale",
+                        transform: "translateZ(0)",
+                        backfaceVisibility: "hidden",
+                        fontSize: "16px",
+                        lineHeight: "1.5",
+                      }}
+                    >
                       {transposeLyrics(song.lyrics || "", steps)}
                     </pre>
                   </div>
