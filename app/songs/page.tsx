@@ -84,12 +84,13 @@ export default function SongsPage() {
     <div className={`min-h-screen relative font-sans ${bgClass} ${textClass}`}>
       <NavbarTopRight />
 
-      <div className="absolute top-4 left-4">
+      {/* Logo removed for mobile */}
+      {/* <div className="absolute top-4 left-4">
         <img src="/logo.png" alt="Church Logo" className="w-16 h-16 object-contain" />
-      </div>
+      </div> */}
 
       <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-6"></h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-6">🎵 Songs Library</h1>
 
         <input
           type="text"
