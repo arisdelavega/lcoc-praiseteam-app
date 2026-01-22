@@ -30,7 +30,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+      <div
+        className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md"
+        style={{ WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}
+      >
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
@@ -48,7 +51,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base appearance-none antialiased"
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-[16px] appearance-none antialiased"
           />
 
           <input
@@ -56,7 +59,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base appearance-none antialiased"
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-[16px] appearance-none antialiased"
           />
 
           {/* Buttons */}
