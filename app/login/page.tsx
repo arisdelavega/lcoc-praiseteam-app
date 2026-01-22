@@ -29,21 +29,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300">
-      <div
-        className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md"
-        style={{
-          WebkitFontSmoothing: "antialiased",
-          MozOsxFontSmoothing: "grayscale",
-        }}
-      >
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white font-sans">
+      <div className="bg-gray-800 shadow-xl rounded-xl p-8 w-full max-w-md">
+        {/* Logo removed for cleaner mobile layout */}
+        {/* <div className="flex justify-center mb-6">
           <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
-        </div>
+        </div> */}
 
         {/* Heading */}
-        <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
+        <h1 className="text-3xl font-bold text-center text-blue-400 mb-6">
           🎵 LCOC Praise Team Login
         </h1>
 
@@ -54,13 +48,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-[16px] appearance-none"
-            style={{
-              WebkitFontSmoothing: "antialiased",
-              MozOsxFontSmoothing: "grayscale",
-              transform: "translateZ(0)",
-              backfaceVisibility: "hidden",
-            }}
+            className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400 text-[16px]"
           />
 
           <input
@@ -68,26 +56,20 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-[16px] appearance-none"
-            style={{
-              WebkitFontSmoothing: "antialiased",
-              MozOsxFontSmoothing: "grayscale",
-              transform: "translateZ(0)",
-              backfaceVisibility: "hidden",
-            }}
+            className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400 text-[16px]"
           />
 
           {/* Buttons */}
           <div className="flex gap-4 mt-4">
             <button
               onClick={handleLogin}
-              className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition text-base font-semibold"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition font-semibold text-base"
             >
               Login
             </button>
             <button
               onClick={handleSignup}
-              className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition text-base font-semibold"
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition font-semibold text-base"
             >
               Signup
             </button>
@@ -98,8 +80,8 @@ export default function LoginPage() {
             <div
               className={`mt-4 text-sm px-4 py-2 rounded ${
                 message.type === "success"
-                  ? "bg-green-100 text-green-700 border border-green-300"
-                  : "bg-red-100 text-red-700 border border-red-300"
+                  ? "bg-green-700 text-green-200 border border-green-600"
+                  : "bg-red-700 text-red-200 border border-red-600"
               }`}
             >
               {message.text}
