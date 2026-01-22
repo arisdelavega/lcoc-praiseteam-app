@@ -6,25 +6,11 @@ import { useRouter } from "next/navigation";
 
 export default function NavbarTopRight() {
   const router = useRouter();
-  const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
-    async function fetchUser() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email) {
-        setUsername(user.email.split("@")[0]); // strip domain
-      }
-    }
-
-    fetchUser();
-
-    // Listen for auth changes
+    // Listen for auth changes to automatically redirect if needed
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user?.email) {
-        setUsername(session.user.email.split("@")[0]);
-      } else {
-        setUsername("");
-      }
+      // no username logic needed
     });
 
     return () => listener.subscription.unsubscribe();
@@ -61,13 +47,7 @@ export default function NavbarTopRight() {
         Setlists
       </button>
 
-      {/* ✅ Username with white text + black outline */}
-      {username && (
-        <span className="font-semibold text-white text-outline">
-          Welcome, {username}!
-        </span>
-      )}
-
+      {/* Logout button */}
       <button
         onClick={handleLogout}
         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
