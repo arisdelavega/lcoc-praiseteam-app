@@ -83,7 +83,7 @@ export default function SongsPage() {
 
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl md:text-4xl font-bold text-blue-500 mb-6 text-left">
-          🎵 LCOC Praise Team Songs
+          
         </h1>
 
         {/* 🔍 SEARCH BAR */}
