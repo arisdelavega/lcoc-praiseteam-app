@@ -42,6 +42,7 @@ export default function SongsPage() {
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [targetKey, setTargetKey] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [darkMode, setDarkMode] = useState(true); // ✅ default dark
 
   useEffect(() => {
     async function loadSongs() {
@@ -72,8 +73,16 @@ export default function SongsPage() {
       (a.title || "").localeCompare(b.title || "")
     );
 
+  // ✅ Dynamic classes for dark/light mode
+  const bgClass = darkMode ? "bg-gray-900" : "bg-gray-50";
+  const textClass = darkMode ? "text-white" : "text-gray-900";
+  const preBgClass = darkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900";
+  const borderClass = darkMode ? "border-gray-700" : "border-gray-300";
+  const inputBgClass = darkMode ? "bg-gray-800 text-white border-gray-700" : "bg-white text-gray-900 border-gray-300";
+  const buttonBgClass = darkMode ? "bg-gray-700 text-gray-200 hover:bg-blue-600" : "bg-gray-200 text-gray-900 hover:bg-blue-300";
+
   return (
-    <div className="min-h-screen bg-gray-900 relative font-sans text-white">
+    <div className={`min-h-screen relative font-sans ${bgClass} ${textClass}`}>
       <NavbarTopRight />
 
       <div className="absolute top-4 left-4">
@@ -81,16 +90,22 @@ export default function SongsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-6 text-left">
-          🎵 Songs Library (Dark Mode)
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-400">🎵 Songs Library</h1>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="px-3 py-1 rounded border border-gray-400 hover:bg-gray-500 hover:text-white transition"
+          >
+            {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
+          </button>
+        </div>
 
         <input
           type="text"
           placeholder="Search song title, artist, or category..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full mb-6 px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-800 text-white border-gray-700"
+          className={`w-full mb-6 px-4 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${inputBgClass}`}
         />
 
         <div className="space-y-4">
@@ -102,13 +117,13 @@ export default function SongsPage() {
             return (
               <div
                 key={song.id}
-                className="border rounded-xl shadow-sm bg-gray-800 hover:shadow-lg transition-shadow duration-200 border-gray-700"
+                className={`border rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 ${bgClass} ${borderClass}`}
               >
                 <button
                   onClick={() =>
                     setOpenSongId(openSongId === song.id ? null : song.id)
                   }
-                  className="w-full flex justify-between items-center px-5 py-4 font-semibold text-lg text-blue-300 hover:bg-gray-700 rounded-t-xl"
+                  className={`w-full flex justify-between items-center px-5 py-4 font-semibold text-lg text-blue-300 hover:bg-gray-700 rounded-t-xl`}
                 >
                   <span>
                     {song.title}{" "}
@@ -120,7 +135,7 @@ export default function SongsPage() {
                 </button>
 
                 {openSongId === song.id && (
-                  <div className="px-5 py-4 border-t bg-gray-900 rounded-b-xl border-gray-700">
+                  <div className={`px-5 py-4 border-t rounded-b-xl ${bgClass} ${borderClass}`}>
                     {song.artist && (
                       <p className="text-sm text-gray-400 italic mb-1">
                         Artist: {song.artist}
@@ -137,18 +152,17 @@ export default function SongsPage() {
                         <button
                           key={key}
                           onClick={() => setTargetKey(key)}
-                          className={`w-10 h-10 rounded-lg border font-medium
-                            ${targetKey === key
-                              ? "bg-blue-600 text-white border-blue-600"
-                              : "bg-gray-700 text-gray-200 border-gray-600 hover:bg-blue-600"
-                            }`}
+                          className={`w-10 h-10 rounded-lg border font-medium ${targetKey === key
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : buttonBgClass
+                          }`}
                         >
                           {key}
                         </button>
                       ))}
                     </div>
 
-                    <pre className="whitespace-pre-wrap text-sm bg-gray-800 p-3 rounded border border-gray-700 antialiased">
+                    <pre className={`whitespace-pre-wrap text-sm p-3 rounded border antialiased ${preBgClass} ${borderClass}`}>
                       {transposeLyrics(song.lyrics || "", steps)}
                     </pre>
                   </div>
