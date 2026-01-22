@@ -252,11 +252,11 @@ export default function SetlistsPage() {
     <div className="min-h-screen bg-gray-900 relative text-white">
       <NavbarTopRight />
       <div className="absolute top-4 left-4">
-        <img src="/logo.png" alt="Church Logo" className="w-30 h-30 object-contain" />
+        <img src="/logo.png" alt="Church Logo" className="w-10 h-10 object-contain" />
       </div>
 
       <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-3xl font-bold text-blue-400 mb-6">🎶 LCOC Praise Team Setlists</h1>
+        <h1 className="text-3xl font-bold text-blue-400 mb-6"></h1>
 
         {/* Create new setlist */}
         <div className="bg-gray-800 shadow-lg rounded-lg p-6 mb-8 border border-gray-700">
