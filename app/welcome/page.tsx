@@ -37,7 +37,7 @@ export default function WelcomePage() {
 
       {/* Centered welcome text */}
       <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center text-white drop-shadow-lg">
-        Welcome to the Lambac Praise Team 🎶
+        Welcome to the Lambac Praise Team App🎶
       </h1>
 
       {/* Display image from public/musicteam.png */}
@@ -68,7 +68,7 @@ export default function WelcomePage() {
         </a>
 
         <p className="text-sm mt-4 text-gray-300">
-          This is the original website of Lambac <br />
+          This is an original website of Lambac Praise Team <br />
           Creator: TechTeam
         </p>
       </div>
