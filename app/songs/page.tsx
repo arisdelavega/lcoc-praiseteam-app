@@ -91,7 +91,7 @@ export default function SongsPage() {
 
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-blue-400">🎵 Songs Library</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-400"></h1>
           <button
             onClick={() => setDarkMode(!darkMode)}
             className="px-3 py-1 rounded border border-gray-400 hover:bg-gray-500 hover:text-white transition"
