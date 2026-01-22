@@ -90,7 +90,7 @@ export default function SongsPage() {
       </div> */}
 
       <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-6">🎵 Songs Library</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-6"></h1>
 
         <input
           type="text"
