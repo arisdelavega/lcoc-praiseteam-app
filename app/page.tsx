@@ -28,29 +28,21 @@ export default function Home() {
         <p style={{ color: "#374151", fontSize: "1.1rem", marginBottom: "2rem" }}>
           Welcome! Click below to login and access your setlists and songs.
         </p>
-        <Link
-          href="/login"
-          style={{
-            display: "inline-block",
-            padding: "0.75rem 1.5rem",
-            background: "linear-gradient(90deg, #4f46e5, #818cf8)",
-            color: "white",
-            borderRadius: "0.75rem",
-            textDecoration: "none",
-            fontWeight: "bold",
-            transition: "all 0.3s ease",
-          }}
-          onMouseOver={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1.05)";
-            (e.currentTarget as HTMLAnchorElement).style.boxShadow =
-              "0 5px 15px rgba(0,0,0,0.3)";
-          }}
-          onMouseOut={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1)";
-            (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
-          }}
-        >
-          Go to Login
+        <Link href="/login" passHref>
+          <a
+            style={{
+              display: "inline-block",
+              padding: "0.75rem 1.5rem",
+              background: "linear-gradient(90deg, #4f46e5, #818cf8)",
+              color: "white",
+              borderRadius: "0.75rem",
+              textDecoration: "none",
+              fontWeight: "bold",
+              transition: "all 0.3s ease",
+            }}
+          >
+            Go to Login
+          </a>
         </Link>
       </div>
     </main>
