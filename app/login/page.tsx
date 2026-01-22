@@ -29,59 +29,74 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white font-sans relative">
-      {/* Small logo in top-right corner */}
-      <div className="absolute top-4 right-4">
-        <img src="/logo.png" alt="Logo" className="w-15 h-15 object-contain" />
+    <div className="min-h-screen flex items-center justify-center relative bg-gray-900 text-white">
+      
+      {/* Background collage */}
+      <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0">
+        <img src="/1.png" className="w-full h-full object-cover opacity-30" alt="1" />
+        <img src="/2.png" className="w-full h-full object-cover opacity-30" alt="2" />
+        <img src="/3.png" className="w-full h-full object-cover opacity-30" alt="3" />
+        <img src="/4.png" className="w-full h-full object-cover opacity-30" alt="4" />
       </div>
 
-      <div className="bg-gray-800 shadow-xl rounded-xl p-8 w-full max-w-md z-10">
-        {/* Heading */}
+      {/* Login form */}
+      <div
+        className="relative bg-gray-800 bg-opacity-90 shadow-xl rounded-xl p-8 w-full max-w-md z-10"
+        style={{ WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}
+      >
+        {/* Logo top-right */}
+        <div className="absolute top-4 right-4">
+          <img src="/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
+        </div>
+
         <h1 className="text-3xl font-bold text-center text-blue-400 mb-6">
           🎵 LCOC Praise Team Login
         </h1>
 
-        {/* Inputs */}
         <div className="space-y-4">
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setMessage(null);
+            }}
             placeholder="Email"
-            className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400 text-[16px]"
+            className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900"
           />
 
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setMessage(null);
+            }}
             placeholder="Password"
-            className="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400 text-[16px]"
+            className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900"
           />
 
-          {/* Buttons */}
           <div className="flex gap-4 mt-4">
             <button
               onClick={handleLogin}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition font-semibold text-base"
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
             >
               Login
             </button>
             <button
               onClick={handleSignup}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition font-semibold text-base"
+              className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold"
             >
               Signup
             </button>
           </div>
 
-          {/* Messages */}
           {message && (
             <div
               className={`mt-4 text-sm px-4 py-2 rounded ${
                 message.type === "success"
-                  ? "bg-green-700 text-green-200 border border-green-600"
-                  : "bg-red-700 text-red-200 border border-red-600"
+                  ? "bg-green-100 text-green-800 border border-green-300"
+                  : "bg-red-100 text-red-800 border border-red-300"
               }`}
             >
               {message.text}
