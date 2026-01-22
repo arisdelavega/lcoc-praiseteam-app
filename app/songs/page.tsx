@@ -41,7 +41,7 @@ export default function SongsPage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [targetKey, setTargetKey] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState(""); // 🔍 NEW
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function loadSongs() {
@@ -83,7 +83,7 @@ export default function SongsPage() {
 
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl md:text-4xl font-bold text-blue-500 mb-6 text-left">
-          Songs Library
+          🎵 Songs Library
         </h1>
 
         {/* 🔍 SEARCH BAR */}
@@ -134,6 +134,7 @@ export default function SongsPage() {
                       </p>
                     )}
 
+                    {/* Chord buttons */}
                     <div className="flex flex-wrap gap-2 mb-4">
                       {CHORDS.map(key => (
                         <button
@@ -150,18 +151,8 @@ export default function SongsPage() {
                       ))}
                     </div>
 
-                    {/* 🔧 Fixed lyrics rendering for mobile */}
-                    <pre
-                      className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded-lg border overflow-x-auto"
-                      style={{
-                        WebkitFontSmoothing: "antialiased",
-                        MozOsxFontSmoothing: "grayscale",
-                        transform: "translateZ(0)",
-                        backfaceVisibility: "hidden",
-                        fontSize: "16px",
-                        lineHeight: "1.5",
-                      }}
-                    >
+                    {/* Lyrics */}
+                    <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-2 rounded border antialiased">
                       {transposeLyrics(song.lyrics || "", steps)}
                     </pre>
                   </div>
