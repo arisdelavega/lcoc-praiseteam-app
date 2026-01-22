@@ -42,7 +42,6 @@ export default function SongsPage() {
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [targetKey, setTargetKey] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [darkMode, setDarkMode] = useState(true); // ✅ default dark
 
   useEffect(() => {
     async function loadSongs() {
@@ -73,13 +72,13 @@ export default function SongsPage() {
       (a.title || "").localeCompare(b.title || "")
     );
 
-  // ✅ Dynamic classes for dark/light mode
-  const bgClass = darkMode ? "bg-gray-900" : "bg-gray-50";
-  const textClass = darkMode ? "text-white" : "text-gray-900";
-  const preBgClass = darkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900";
-  const borderClass = darkMode ? "border-gray-700" : "border-gray-300";
-  const inputBgClass = darkMode ? "bg-gray-800 text-white border-gray-700" : "bg-white text-gray-900 border-gray-300";
-  const buttonBgClass = darkMode ? "bg-gray-700 text-gray-200 hover:bg-blue-600" : "bg-gray-200 text-gray-900 hover:bg-blue-300";
+  // ✅ Dark mode classes
+  const bgClass = "bg-gray-900";
+  const textClass = "text-white";
+  const preBgClass = "bg-gray-800 text-white";
+  const borderClass = "border-gray-700";
+  const inputBgClass = "bg-gray-800 text-white border-gray-700";
+  const buttonBgClass = "bg-gray-700 text-gray-200 hover:bg-blue-600";
 
   return (
     <div className={`min-h-screen relative font-sans ${bgClass} ${textClass}`}>
@@ -90,15 +89,7 @@ export default function SongsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-blue-400"></h1>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="px-3 py-1 rounded border border-gray-400 hover:bg-gray-500 hover:text-white transition"
-          >
-            {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
-          </button>
-        </div>
+        <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-6"></h1>
 
         <input
           type="text"
