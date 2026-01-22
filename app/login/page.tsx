@@ -32,7 +32,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white font-sans relative">
       {/* Small logo in top-right corner */}
       <div className="absolute top-4 right-4">
-        <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+        <img src="/logo.png" alt="Logo" className="w-15 h-15 object-contain" />
       </div>
 
       <div className="bg-gray-800 shadow-xl rounded-xl p-8 w-full max-w-md z-10">
