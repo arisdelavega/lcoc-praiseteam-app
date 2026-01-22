@@ -15,7 +15,7 @@ export default function LoginPage() {
     if (error) {
       setMessage({ type: "error", text: error.message });
     } else {
-      router.push("/welcome"); // ✅ redirect to welcome page
+      router.push("/welcome");
     }
   }
 
@@ -24,28 +24,31 @@ export default function LoginPage() {
     if (error) {
       setMessage({ type: "error", text: error.message });
     } else {
-      router.push("/welcome"); // ✅ redirect to welcome page
+      router.push("/welcome");
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        <div className="flex justify-center mb-4">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
           <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
         </div>
 
-        <h1 className="text-2xl font-bold text-center text-blue-600 mb-6">
-          🎵 Lambac COC Worship Team Login
+        {/* Heading */}
+        <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
+          🎵 LCOC Praise Team Login
         </h1>
 
+        {/* Inputs */}
         <div className="space-y-4">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base appearance-none antialiased"
           />
 
           <input
@@ -53,24 +56,26 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base appearance-none antialiased"
           />
 
+          {/* Buttons */}
           <div className="flex gap-4 mt-4">
             <button
               onClick={handleLogin}
-              className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
+              className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition text-base font-semibold"
             >
               Login
             </button>
             <button
               onClick={handleSignup}
-              className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
+              className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition text-base font-semibold"
             >
               Signup
             </button>
           </div>
 
+          {/* Messages */}
           {message && (
             <div
               className={`mt-4 text-sm px-4 py-2 rounded ${
