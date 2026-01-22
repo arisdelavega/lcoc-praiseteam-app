@@ -75,7 +75,7 @@ export default function WelcomePage() {
 
       {/* Footer Welcome Note */}
       <p className="absolute bottom-4 text-white text-sm text-center w-full drop-shadow-lg">
-        🎵 Welcome to the official page of Lambac Praise Team 🎵
+    
       </p>
     </div>
   );
