@@ -23,21 +23,21 @@ export default function WelcomePage() {
       className="min-h-screen flex flex-col items-center justify-center relative bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/bg.png')" }}
     >
-      {/* Top-left logo */}
-      <div className="absolute top-4 left-4">
+      {/* Top-left logo removed */}
+      {/* <div className="absolute top-4 left-4">
         <img
           src="/logo.png"
           alt="Church Logo"
           className="w-10 h-10 object-contain"
         />
-      </div>
+      </div> */}
 
       {/* Top-right Navbar */}
       <NavbarTopRight />
 
       {/* Centered welcome text */}
       <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center text-white drop-shadow-lg">
-        Welcome to Lambac Praise Team App🎶
+        Welcome to Lambac Praise Team App
       </h1>
 
       {/* Display image from public/musicteam.png */}
@@ -75,7 +75,7 @@ export default function WelcomePage() {
 
       {/* Footer Welcome Note */}
       <p className="absolute bottom-4 text-white text-sm text-center w-full drop-shadow-lg">
-    
+        {/* Footer text if needed */}
       </p>
     </div>
   );
