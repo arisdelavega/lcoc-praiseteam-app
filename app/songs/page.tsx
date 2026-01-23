@@ -13,7 +13,21 @@ type Song = {
   category?: string;
 };
 
-const CHORDS = ["A","A#","B","C","C#","D","D#","E","F","F#","G","G#"];
+/**
+ * All 12 notes (sharps)
+ */
+const CHORDS = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+/**
+ * Flats → sharps mapping
+ */
+const ENHARMONIC_EQUIV: { [key: string]: string } = {
+  "Db": "C#",
+  "Eb": "D#",
+  "Gb": "F#",
+  "Ab": "G#",
+  "Bb": "A#"
+};
 
 /**
  * Convert TAB characters to spaces (VERY IMPORTANT)
@@ -23,16 +37,30 @@ function normalizeTabs(text: string, tabSize = 4) {
 }
 
 /**
- * Transpose a single chord safely
+ * Normalize chord to sharp format
+ */
+function normalizeChord(chord: string) {
+  const match = chord.match(/^([A-G][b#]?)(.*)$/);
+  if (!match) return chord;
+  let root = match[1];
+  const suffix = match[2] || "";
+
+  if (ENHARMONIC_EQUIV[root]) root = ENHARMONIC_EQUIV[root];
+
+  return root + suffix;
+}
+
+/**
+ * Transpose a single chord safely (enharmonic-aware)
  */
 function transposeChord(chord: string, steps: number): string {
-  const match = chord.match(/^([A-G])(#|b)?(.*)$/);
+  const match = chord.match(/^([A-G][b#]?)(.*)$/);
   if (!match) return chord;
 
-  const root = match[1] + (match[2] || "");
-  const suffix = match[3] || "";
+  const normalizedRoot = normalizeChord(match[1]);
+  const suffix = match[2] || "";
 
-  const index = CHORDS.indexOf(root);
+  const index = CHORDS.indexOf(normalizedRoot);
   if (index === -1) return chord;
 
   const newIndex = (index + steps + CHORDS.length) % CHORDS.length;
@@ -44,12 +72,12 @@ function transposeChord(chord: string, steps: number): string {
  */
 function transposeLyrics(lyrics: string, steps: number): string {
   const chordRegex =
-    /\b([A-G])(#|b)?(m|maj|min|dim|aug|sus\d*)?(?:\d*)?\b/g;
+    /\b([A-G][b#]?)(m|maj|min|dim|aug|sus\d*)?(?:\d*)?\b/g;
 
   return normalizeTabs(lyrics)
     .split("\n")
     .map(line => {
-      // Only touch chord-looking lines
+      // Only touch chord-looking lines (heuristic)
       if (!/^[A-G#bm\d\s\/]+$/.test(line.trim())) return line;
 
       return line.replace(chordRegex, (match) =>
@@ -77,9 +105,16 @@ export default function SongsPage() {
     loadSongs();
   }, []);
 
+  /**
+   * Calculate steps between original key and target key
+   */
   function getTransposeSteps(original: string, target: string): number {
-    const origIndex = CHORDS.indexOf(original);
-    const targetIndex = CHORDS.indexOf(target);
+    const origNormalized = ENHARMONIC_EQUIV[original] || original;
+    const targetNormalized = ENHARMONIC_EQUIV[target] || target;
+
+    const origIndex = CHORDS.indexOf(origNormalized);
+    const targetIndex = CHORDS.indexOf(targetNormalized);
+
     if (origIndex === -1 || targetIndex === -1) return 0;
     return targetIndex - origIndex;
   }
