@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -25,7 +25,7 @@ export default function NavbarTopRight() {
 
   return (
     <div className="absolute top-4 right-6 flex items-center gap-4">
-      {/* ✅ Home/Welcome link */}
+      {/* ✅ Navigation links */}
       <button
         onClick={() => router.push("/welcome")}
         className="text-blue-600 hover:underline"
@@ -45,6 +45,14 @@ export default function NavbarTopRight() {
         className="text-blue-600 hover:underline"
       >
         Setlists
+      </button>
+
+      {/* Availability link */}
+      <button
+        onClick={() => router.push("/availability")}
+        className="text-blue-600 hover:underline"
+      >
+        Availability
       </button>
 
       {/* Logout button */}
