@@ -15,25 +15,47 @@ type Song = {
 
 const CHORDS = ["A","A#","B","C","C#","D","D#","E","F","F#","G","G#"];
 
+/**
+ * Convert TAB characters to spaces (VERY IMPORTANT)
+ */
+function normalizeTabs(text: string, tabSize = 4) {
+  return text.replace(/\t/g, " ".repeat(tabSize));
+}
+
+/**
+ * Transpose a single chord safely
+ */
 function transposeChord(chord: string, steps: number): string {
-  const match = chord.match(/^([A-G]#?)(.*)$/);
+  const match = chord.match(/^([A-G])(#|b)?(.*)$/);
   if (!match) return chord;
-  const [_, root, suffix] = match;
+
+  const root = match[1] + (match[2] || "");
+  const suffix = match[3] || "";
+
   const index = CHORDS.indexOf(root);
   if (index === -1) return chord;
+
   const newIndex = (index + steps + CHORDS.length) % CHORDS.length;
   return CHORDS[newIndex] + suffix;
 }
 
+/**
+ * Transpose lyrics while preserving spacing & alignment
+ */
 function transposeLyrics(lyrics: string, steps: number): string {
-  return lyrics
+  const chordRegex =
+    /\b([A-G])(#|b)?(m|maj|min|dim|aug|sus\d*)?(?:\d*)?\b/g;
+
+  return normalizeTabs(lyrics)
     .split("\n")
-    .map(line =>
-      line
-        .split(" ")
-        .map(word => transposeChord(word, steps))
-        .join(" ")
-    )
+    .map(line => {
+      // Only touch chord-looking lines
+      if (!/^[A-G#bm\d\s\/]+$/.test(line.trim())) return line;
+
+      return line.replace(chordRegex, (match) =>
+        transposeChord(match, steps)
+      );
+    })
     .join("\n");
 }
 
@@ -47,7 +69,7 @@ export default function SongsPage() {
     async function loadSongs() {
       const { data, error } = await supabase.from("songs").select("*");
       if (error) {
-        console.error("Supabase error:", error.message, error.code, error.details);
+        console.error("Supabase error:", error.message);
       } else {
         setSongs(data || []);
       }
@@ -62,46 +84,29 @@ export default function SongsPage() {
     return targetIndex - origIndex;
   }
 
-  const filteredAndSortedSongs = songs
+  const filteredSongs = songs
     .filter(song =>
       `${song.title} ${song.artist} ${song.category}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
     )
-    .sort((a, b) =>
-      (a.title || "").localeCompare(b.title || "")
-    );
-
-  // ✅ Dark mode classes
-  const bgClass = "bg-gray-900";
-  const textClass = "text-white";
-  const preBgClass = "bg-gray-800 text-white";
-  const borderClass = "border-gray-700";
-  const inputBgClass = "bg-gray-800 text-white border-gray-700";
-  const buttonBgClass = "bg-gray-700 text-gray-200 hover:bg-blue-600";
+    .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
 
   return (
-    <div className={`min-h-screen relative font-sans ${bgClass} ${textClass}`}>
+    <div className="min-h-screen bg-gray-900 text-white font-sans">
       <NavbarTopRight />
 
-      {/* Logo removed for mobile */}
-      {/* <div className="absolute top-4 left-4">
-        <img src="/logo.png" alt="Church Logo" className="w-16 h-16 object-contain" />
-      </div> */}
-
       <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-6"></h1>
-
         <input
           type="text"
           placeholder="Search song title, artist, or category..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className={`w-full mb-6 px-4 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${inputBgClass}`}
+          className="w-full mb-6 px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-blue-400"
         />
 
         <div className="space-y-4">
-          {filteredAndSortedSongs.map(song => {
+          {filteredSongs.map(song => {
             const steps = targetKey
               ? getTransposeSteps(song.original_key || "", targetKey)
               : 0;
@@ -109,27 +114,27 @@ export default function SongsPage() {
             return (
               <div
                 key={song.id}
-                className={`border rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 ${bgClass} ${borderClass}`}
+                className="border border-gray-700 rounded-xl"
               >
                 <button
                   onClick={() =>
                     setOpenSongId(openSongId === song.id ? null : song.id)
                   }
-                  className={`w-full flex justify-between items-center px-5 py-4 font-semibold text-lg text-blue-300 hover:bg-gray-700 rounded-t-xl`}
+                  className="w-full flex justify-between px-5 py-4 text-lg font-semibold text-blue-300 hover:bg-gray-700 rounded-t-xl"
                 >
                   <span>
                     {song.title}{" "}
-                    <span className="text-gray-400">({song.original_key})</span>
+                    <span className="text-gray-400">
+                      ({song.original_key})
+                    </span>
                   </span>
-                  <span className="text-gray-500">
-                    {openSongId === song.id ? "▲" : "▼"}
-                  </span>
+                  <span>{openSongId === song.id ? "▲" : "▼"}</span>
                 </button>
 
                 {openSongId === song.id && (
-                  <div className={`px-5 py-4 border-t rounded-b-xl ${bgClass} ${borderClass}`}>
+                  <div className="px-5 py-4 border-t border-gray-700">
                     {song.artist && (
-                      <p className="text-sm text-gray-400 italic mb-1">
+                      <p className="text-sm text-gray-400 italic">
                         Artist: {song.artist}
                       </p>
                     )}
@@ -144,9 +149,10 @@ export default function SongsPage() {
                         <button
                           key={key}
                           onClick={() => setTargetKey(key)}
-                          className={`w-10 h-10 rounded-lg border font-medium ${targetKey === key
-                            ? "bg-blue-600 text-white border-blue-600"
-                            : buttonBgClass
+                          className={`w-10 h-10 rounded-lg border font-medium ${
+                            targetKey === key
+                              ? "bg-blue-600 text-white border-blue-600"
+                              : "bg-gray-700 text-gray-200 border-gray-600 hover:bg-blue-600"
                           }`}
                         >
                           {key}
@@ -154,7 +160,7 @@ export default function SongsPage() {
                       ))}
                     </div>
 
-                    <pre className={`whitespace-pre-wrap text-sm p-3 rounded border antialiased ${preBgClass} ${borderClass}`}>
+                    <pre className="whitespace-pre font-mono text-sm p-3 rounded bg-gray-800 border border-gray-700 overflow-x-auto">
                       {transposeLyrics(song.lyrics || "", steps)}
                     </pre>
                   </div>
