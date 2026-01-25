@@ -22,15 +22,15 @@ const CHORDS = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
  * Flats → sharps mapping
  */
 const ENHARMONIC_EQUIV: { [key: string]: string } = {
-  "Db": "C#",
-  "Eb": "D#",
-  "Gb": "F#",
-  "Ab": "G#",
-  "Bb": "A#"
+  Db: "C#",
+  Eb: "D#",
+  Gb: "F#",
+  Ab: "G#",
+  Bb: "A#",
 };
 
 /**
- * Convert TAB characters to spaces (VERY IMPORTANT)
+ * Convert TAB characters to spaces
  */
 function normalizeTabs(text: string, tabSize = 4) {
   return text.replace(/\t/g, " ".repeat(tabSize));
@@ -42,6 +42,7 @@ function normalizeTabs(text: string, tabSize = 4) {
 function normalizeChord(chord: string) {
   const match = chord.match(/^([A-G][b#]?)(.*)$/);
   if (!match) return chord;
+
   let root = match[1];
   const suffix = match[2] || "";
 
@@ -51,7 +52,7 @@ function normalizeChord(chord: string) {
 }
 
 /**
- * Transpose a single chord safely (enharmonic-aware)
+ * Transpose a single chord
  */
 function transposeChord(chord: string, steps: number): string {
   const match = chord.match(/^([A-G][b#]?)(.*)$/);
@@ -68,7 +69,7 @@ function transposeChord(chord: string, steps: number): string {
 }
 
 /**
- * Transpose lyrics while preserving spacing & alignment
+ * Transpose lyrics while preserving spacing
  */
 function transposeLyrics(lyrics: string, steps: number): string {
   const chordRegex =
@@ -77,10 +78,8 @@ function transposeLyrics(lyrics: string, steps: number): string {
   return normalizeTabs(lyrics)
     .split("\n")
     .map(line => {
-      // Only touch chord-looking lines (heuristic)
       if (!/^[A-G#bm\d\s\/]+$/.test(line.trim())) return line;
-
-      return line.replace(chordRegex, (match) =>
+      return line.replace(chordRegex, match =>
         transposeChord(match, steps)
       );
     })
@@ -105,9 +104,6 @@ export default function SongsPage() {
     loadSongs();
   }, []);
 
-  /**
-   * Calculate steps between original key and target key
-   */
   function getTransposeSteps(original: string, target: string): number {
     const origNormalized = ENHARMONIC_EQUIV[original] || original;
     const targetNormalized = ENHARMONIC_EQUIV[target] || target;
@@ -132,12 +128,13 @@ export default function SongsPage() {
       <NavbarTopRight />
 
       <div className="max-w-4xl mx-auto p-6">
+        {/* ✅ SEARCH BAR – BINABA LANG */}
         <input
           type="text"
           placeholder="Search song title, artist, or category..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full mb-6 px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-blue-400"
+          className="w-full mt-16 sm:mt-20 mb-6 px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-blue-400"
         />
 
         <div className="space-y-4">
