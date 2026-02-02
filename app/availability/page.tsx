@@ -302,41 +302,53 @@ export default function AvailabilityPage() {
 
         {/* --- Musician Assignments --- */}
         <div className="border-t border-gray-700 pt-4">
-          <h2 className="font-semibold mb-2">Musician Assignments</h2>
+          <h2 className="font-semibold mb-2 text-xl">Musician Assignments</h2>
           <input type="date" value={musicianDate} onChange={e=>setMusicianDate(e.target.value)} className="border px-3 py-2 mb-2 w-full rounded bg-gray-700 text-gray-100" />
           <div className="grid grid-cols-2 gap-2 mb-2">
             {instruments.map(inst => (
               <div key={inst}>
-                <label>{inst}</label>
+                <label className="font-semibold">{inst}</label>
                 <input type="text" placeholder={`Enter ${inst}`} value={musiciansPerInstrument[inst] || ""}
                   onChange={e => setMusiciansPerInstrument(prev => ({ ...prev, [inst]: e.target.value }))}
                   className="border px-2 py-1 w-full rounded bg-gray-700 text-gray-100"/>
               </div>
             ))}
           </div>
-          <button onClick={saveMusicianAssignment} disabled={!musicianDate || musicianLoading} className="bg-green-600 px-4 py-2 rounded w-full">{musicianLoading ? "Saving..." : editingMusicianDate ? "Update All" : "Save All"}</button>
-          {musicianMessage && <p className="text-sm">{musicianMessage}</p>}
+          <button onClick={saveMusicianAssignment} disabled={!musicianDate || musicianLoading} className="bg-green-600 px-4 py-2 rounded w-full hover:bg-green-500 transition">
+            {musicianLoading ? "Saving..." : editingMusicianDate ? "Update All" : "Save All"}
+          </button>
+          {musicianMessage && <p className="text-sm mt-1">{musicianMessage}</p>}
 
-          {musicianAssignments.length > 0 && <div className="mt-4">
-            {Array.from(new Set(musicianAssignments.map(m => m.date))).sort().map(date => {
-              const assigns = musicianAssignments.filter(m => m.date === date);
-              return <div key={date} className="border p-2 mb-1">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold">{date}</span>
-                  <div className="flex gap-1">
-                    <button onClick={() => editMusician(date)} className="text-green-400 text-xs">Edit</button>
-                    <button onClick={() => deleteMusician(date)} className="text-red-500 text-xs">Delete</button>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 mt-1">
-                  {instruments.map(inst => {
-                    const m = assigns.find(a => a.instrument === inst);
-                    return <div key={inst}>{inst}: {m ? m.musician_name : "-"}</div>
-                  })}
-                </div>
-              </div>
-            })}
-          </div>}
+          {musicianAssignments.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {Array.from(new Set(musicianAssignments.map(m => m.date)))
+                .sort()
+                .map(date => {
+                  const assigns = musicianAssignments.filter(m => m.date === date);
+                  return (
+                    <div key={date} className="border rounded p-3 bg-gray-800 hover:bg-gray-700 transition">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold text-lg">{date}</span>
+                        <div className="flex gap-1">
+                          <button onClick={() => editMusician(date)} className="text-green-400 text-xs">Edit</button>
+                          <button onClick={() => deleteMusician(date)} className="text-red-500 text-xs">Delete</button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {instruments.map(inst => {
+                          const m = assigns.find(a => a.instrument === inst);
+                          return (
+                            <div key={inst} className={`p-1 rounded ${m ? "bg-gray-700" : "bg-gray-900"} ${instrumentColor(inst)}`}>
+                              <span className="font-semibold">{inst}:</span> {m ? m.musician_name : "-"}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
 
       </div>
