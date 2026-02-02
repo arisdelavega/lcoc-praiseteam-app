@@ -203,6 +203,26 @@ export default function AvailabilityPage() {
     setMusicianDate(date); setMusiciansPerInstrument(newMap); setEditingMusicianDate(date);
   };
 
+  const isToday = (dayNumber: number | null) => {
+    if (!dayNumber) return false;
+    const today = new Date();
+    return today.getDate() === dayNumber &&
+           today.getMonth() === currentMonth.getMonth() &&
+           today.getFullYear() === currentMonth.getFullYear();
+  };
+
+  const instrumentColor = (inst: string | null) => {
+    switch(inst) {
+      case "Drum": return "text-red-400";
+      case "Bass": return "text-green-400";
+      case "Guitar": return "text-yellow-400";
+      case "Acoustic": return "text-orange-400";
+      case "Organ": return "text-purple-400";
+      case "Pinagkitan": return "text-pink-400";
+      default: return "text-gray-100";
+    }
+  };
+
   // --- Render ---
   return (
     <div className="bg-gray-900 min-h-screen text-gray-100 p-4 relative">
@@ -255,12 +275,13 @@ export default function AvailabilityPage() {
 
                 return (
                   <div key={j} className={`border rounded p-2 flex flex-col justify-start items-start overflow-hidden text-xs
-                    ${entries?.some(e => e.full_name === myName) ? "bg-yellow-600 text-gray-900" : "bg-gray-700"}`}>
+                    ${entries?.some(e => e.full_name === myName) ? "bg-yellow-600 text-gray-900" :
+                      isToday(dayNumber) ? "bg-blue-500 text-white" : "bg-gray-700"}`}>
                     <span className="font-semibold">{dayNumber}</span>
-                    <div className="overflow-y-auto max-h-36 w-full mt-1"> {/* scrollable div for multiple entries */}
+                    <div className="overflow-y-auto max-h-36 w-full mt-1">
                       {entries?.map(e => (
                         <div key={e.id} className="mt-1 border-b border-gray-600 pb-1">
-                          <span>{e.instrument ? e.instrument + " 🎸" : ""}</span><br/>
+                          <span className={`${instrumentColor(e.instrument)}`}>{e.instrument ? e.instrument + " 🎸" : ""}</span><br/>
                           <span className="font-semibold">{e.full_name}</span>
                           <div className="flex gap-1 mt-1">
                             {e.full_name === myName && <>
@@ -271,6 +292,7 @@ export default function AvailabilityPage() {
                         </div>
                       ))}
                     </div>
+                    {entries?.length ? <span className="text-xs mt-1">{entries.length} Available</span> : null}
                   </div>
                 );
               })}
