@@ -212,7 +212,6 @@ export default function AvailabilityPage() {
 
     try {
       if (editingMusicianDate) {
-        // Delete existing entries for this date
         const { error: delError } = await supabase
           .from("musician_assignment")
           .delete()
@@ -384,8 +383,11 @@ export default function AvailabilityPage() {
                           >
                             <td className="px-3 py-2 border">{entry.date}</td>
                             <td className="px-3 py-2 border font-semibold">{entry.full_name}</td>
-                            <td className="px-3 py-2 border flex items-center gap-1">
-                              {instrumentEmoji} {entry.instrument || "-"}
+                            <td className="px-3 py-2 border">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{instrumentEmoji}</span>
+                                <span>{entry.instrument || "-"}</span>
+                              </div>
                             </td>
                             <td className="px-3 py-2 border">
                               {entry.available ? "✅ Available" : "❌ Not available"}
@@ -510,15 +512,19 @@ export default function AvailabilityPage() {
                               case "Drum":
                                 emoji = "🥁";
                                 break;
-                              case "Bass":
-                                emoji = "🎸";
-                                break;
                               default:
                                 emoji = "";
                             }
                             return (
                               <td key={inst} className="px-3 py-2 border">
-                                {musician ? `${emoji} ${musician.musician_name}` : "-"}
+                                {musician ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">{emoji}</span>
+                                    <span>{musician.musician_name}</span>
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </td>
                             );
                           })}
@@ -543,7 +549,7 @@ export default function AvailabilityPage() {
               </table>
             </div>
           ) : (
-            <p className="text-gray-400 mt-2">No musician assignments yet.</p>
+            <p className="text-gray-400">No musician assignments yet.</p>
           )}
         </div>
       </div>
