@@ -13,11 +13,6 @@ type Availability = {
   instrument: string | null;
 };
 
-type GroupedAvailability = {
-  month: string;
-  entries: Availability[];
-};
-
 type MusicianAssignment = {
   id: number;
   date: string;
@@ -27,7 +22,6 @@ type MusicianAssignment = {
 };
 
 export default function AvailabilityPage() {
-  // --- Availability states ---
   const [date, setDate] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
   const [instrument, setInstrument] = useState<string>("");
@@ -40,7 +34,7 @@ export default function AvailabilityPage() {
 
   const instruments = ["Drum", "Bass", "Guitar", "Acoustic", "Organ", "Pinagkitan"];
 
-  // --- Musician assignment states ---
+  // Musician
   const [musicianDate, setMusicianDate] = useState<string>("");
   const [musiciansPerInstrument, setMusiciansPerInstrument] = useState<{ [key: string]: string }>({});
   const [musicianLoading, setMusicianLoading] = useState<boolean>(false);
@@ -48,13 +42,16 @@ export default function AvailabilityPage() {
   const [musicianAssignments, setMusicianAssignments] = useState<MusicianAssignment[]>([]);
   const [editingMusicianDate, setEditingMusicianDate] = useState<string | null>(null);
 
-  // --- Load my name from localStorage ---
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+
   useEffect(() => {
     const storedName = localStorage.getItem("myName");
     if (storedName) setMyName(storedName);
+    fetchAllAvailability();
+    fetchMusicianAssignments();
   }, []);
 
-  // --- Fetch availability ---
+  // --- Fetch Availability ---
   const fetchAllAvailability = async () => {
     const today = new Date().toISOString().split("T")[0];
     const { data, error } = await supabase
@@ -62,12 +59,11 @@ export default function AvailabilityPage() {
       .select("*")
       .gte("date", today)
       .order("date", { ascending: true });
-
     if (error) console.error(error);
     if (data) setSummaryList(data as Availability[]);
   };
 
-  // --- Fetch musician assignments ---
+  // --- Fetch Musician Assignments ---
   const fetchMusicianAssignments = async () => {
     const today = new Date().toISOString().split("T")[0];
     const { data, error } = await supabase
@@ -75,41 +71,28 @@ export default function AvailabilityPage() {
       .select("*")
       .gte("date", today)
       .order("date", { ascending: true });
-
     if (error) console.error(error);
     if (data) setMusicianAssignments(data as MusicianAssignment[]);
   };
 
-  useEffect(() => {
-    fetchAllAvailability();
-    fetchMusicianAssignments();
-  }, []);
-
-  // --- Save availability ---
+  // --- Save Availability ---
   const saveAvailability = async () => {
     if (!date || !fullName.trim()) {
       setMessage("Please enter your name and select a date.");
       return;
     }
-
     setLoading(true);
     setMessage("");
-
     if (editingId) {
       const { error } = await supabase
         .from("availability")
         .update({ date, instrument: instrument || null, available })
         .eq("id", editingId);
-
-      if (error) {
-        console.error(error);
-        setMessage("Error updating entry ❌");
-      } else {
+      if (error) setMessage("Error updating entry ❌");
+      else {
         setMessage("Entry updated ✅");
         setEditingId(null);
-        setDate("");
-        setInstrument("");
-        setAvailable(true);
+        setDate(""); setInstrument(""); setAvailable(true);
         fetchAllAvailability();
       }
     } else {
@@ -120,40 +103,26 @@ export default function AvailabilityPage() {
         full_name: fullName.trim(),
         instrument: instrument || null,
       });
-
-      if (error) {
-        console.error(error);
-        setMessage("Error saving availability ❌");
-      } else {
+      if (error) setMessage("Error saving availability ❌");
+      else {
         setMessage("Availability saved ✅");
         localStorage.setItem("myName", fullName.trim());
         setMyName(fullName.trim());
-        setDate("");
-        setInstrument("");
-        setAvailable(true);
+        setDate(""); setInstrument(""); setAvailable(true);
         fetchAllAvailability();
       }
     }
-
     setLoading(false);
   };
 
-  // --- Delete availability ---
+  // --- Delete / Edit ---
   const deleteAvailability = async (id: number) => {
-    const confirm = window.confirm("Are you sure you want to delete this entry?");
-    if (!confirm) return;
-
+    if (!window.confirm("Are you sure you want to delete this entry?")) return;
     const { error } = await supabase.from("availability").delete().eq("id", id);
-    if (error) {
-      console.error(error);
-      setMessage("Error deleting entry ❌");
-    } else {
-      setMessage("Entry deleted ✅");
-      fetchAllAvailability();
-    }
+    if (error) setMessage("Error deleting ❌");
+    else { setMessage("Entry deleted ✅"); fetchAllAvailability(); }
   };
 
-  // --- Edit availability ---
   const startEdit = (entry: Availability) => {
     setEditingId(entry.id);
     setDate(entry.date);
@@ -164,394 +133,190 @@ export default function AvailabilityPage() {
 
   const cancelEdit = () => {
     setEditingId(null);
-    setDate("");
-    setInstrument("");
-    setAvailable(true);
-    setFullName("");
-    setMessage("");
+    setDate(""); setInstrument(""); setAvailable(true); setFullName(""); setMessage("");
   };
 
-  // --- Group availability by month ---
-  const grouped: GroupedAvailability[] = [];
-  const monthMap: { [month: string]: Availability[] } = {};
-  summaryList.forEach((entry) => {
-    const dateObj = new Date(entry.date);
-    const monthKey = dateObj.toLocaleString("default", { month: "long", year: "numeric" });
-    if (!monthMap[monthKey]) monthMap[monthKey] = [];
-    monthMap[monthKey].push(entry);
-  });
-  const sortedMonths = Object.keys(monthMap).sort((a, b) => {
-    const aDate = new Date(monthMap[a][0].date);
-    const bDate = new Date(monthMap[b][0].date);
-    return aDate.getTime() - bDate.getTime();
-  });
-  sortedMonths.forEach((month) => grouped.push({ month, entries: monthMap[month] }));
+  // --- Calendar Logic ---
+  const formatDate = (d: Date) => d.toISOString().split("T")[0];
 
-  // --- Save musician assignments ---
-  const saveMusicianAssignment = async () => {
-    if (!musicianDate) {
-      setMusicianMessage("Please select a date.");
-      return;
+  const generateMonthGrid = (month: Date) => {
+    const year = month.getFullYear();
+    const mon = month.getMonth();
+    const firstDay = new Date(year, mon, 1);
+    const lastDay = new Date(year, mon + 1, 0);
+    const grid: (Availability[] | null)[][] = [];
+    let week: (Availability[] | null)[] = [];
+
+    for (let i = 0; i < firstDay.getDay(); i++) week.push(null);
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = formatDate(new Date(year, mon, day));
+      const entriesForDay = summaryList.filter((e) => e.date === dateStr);
+      week.push(entriesForDay.length ? entriesForDay : null);
+      if (week.length === 7) { grid.push(week); week = []; }
     }
+    while (week.length < 7 && week.length !== 0) week.push(null);
+    if (week.length) grid.push(week);
 
+    return grid;
+  };
+
+  const calendarGrid = generateMonthGrid(currentMonth);
+  const monthName = currentMonth.toLocaleString("default", { month: "long", year: "numeric" });
+  const weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  // --- Navigation ---
+  const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1));
+  const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1));
+
+  // --- Musician Assignments Save / Edit / Delete ---
+  const saveMusicianAssignment = async () => {
+    if (!musicianDate) { setMusicianMessage("Select a date."); return; }
     const assignments = Object.entries(musiciansPerInstrument)
       .filter(([_, name]) => name.trim() !== "")
-      .map(([instrument, musician_name]) => ({
-        date: musicianDate,
-        instrument,
-        musician_name: musician_name.trim(),
-      }));
-
-    if (assignments.length === 0) {
-      setMusicianMessage("Please enter at least one musician name.");
-      return;
-    }
-
-    setMusicianLoading(true);
-    setMusicianMessage("");
+      .map(([instrument, musician_name]) => ({ date: musicianDate, instrument, musician_name: musician_name.trim() }));
+    if (!assignments.length) { setMusicianMessage("Enter at least one musician."); return; }
+    setMusicianLoading(true); setMusicianMessage("");
 
     try {
-      if (editingMusicianDate) {
-        const { error: delError } = await supabase
-          .from("musician_assignment")
-          .delete()
-          .eq("date", editingMusicianDate);
-
-        if (delError) throw delError;
-      }
-
+      if (editingMusicianDate) await supabase.from("musician_assignment").delete().eq("date", editingMusicianDate);
       const { error } = await supabase.from("musician_assignment").insert(assignments);
-
       if (error) throw error;
-
       setMusicianMessage("Musician assignments saved ✅");
-      setMusicianDate("");
-      setMusiciansPerInstrument({});
-      setEditingMusicianDate(null);
+      setMusicianDate(""); setMusiciansPerInstrument({}); setEditingMusicianDate(null);
       fetchMusicianAssignments();
-    } catch (err) {
-      console.error(err);
-      setMusicianMessage("Error saving musician assignments ❌");
-    }
+    } catch (err) { console.error(err); setMusicianMessage("Error saving ❌"); }
 
     setMusicianLoading(false);
   };
 
-  // --- Delete musician assignment ---
   const deleteMusician = async (date: string) => {
-    const confirm = window.confirm("Are you sure you want to delete all musicians for this date?");
-    if (!confirm) return;
-
+    if (!window.confirm("Delete all musicians for this date?")) return;
     const { error } = await supabase.from("musician_assignment").delete().eq("date", date);
-    if (error) {
-      console.error(error);
-      setMusicianMessage("Error deleting musician assignment ❌");
-    } else {
-      setMusicianMessage("Musician assignment deleted ✅");
-      fetchMusicianAssignments();
-    }
+    if (error) setMusicianMessage("Error deleting ❌"); else { setMusicianMessage("Deleted ✅"); fetchMusicianAssignments(); }
   };
 
-  // --- Edit musician assignment ---
   const editMusician = (date: string) => {
     const assignmentsForDate = musicianAssignments.filter((m) => m.date === date);
     const newMap: { [key: string]: string } = {};
-    assignmentsForDate.forEach((m) => {
-      newMap[m.instrument] = m.musician_name;
-    });
-    setMusicianDate(date);
-    setMusiciansPerInstrument(newMap);
-    setEditingMusicianDate(date);
+    assignmentsForDate.forEach((m) => { newMap[m.instrument] = m.musician_name; });
+    setMusicianDate(date); setMusiciansPerInstrument(newMap); setEditingMusicianDate(date);
   };
 
+  // --- Render ---
   return (
     <div className="bg-gray-900 min-h-screen text-gray-100 p-4 relative">
       <NavbarTopRight />
-
-      <div className="max-w-3xl mx-auto mt-20 p-6 border rounded shadow bg-gray-800">
+      <div className="max-w-5xl mx-auto mt-20 p-6 border rounded shadow bg-gray-800">
         <h1 className="text-2xl font-bold mb-4">My Availability</h1>
 
-        {/* Availability Form */}
-        <label className="block mb-2 text-sm font-medium">Select Date</label>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="border px-3 py-2 w-full mb-4 rounded bg-gray-700 text-gray-100"
-        />
-
-        <label className="block mb-2 text-sm font-medium">Your Name</label>
-        <input
-          type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          placeholder="Type your name"
-          className="border px-3 py-2 w-full mb-4 rounded bg-gray-700 text-gray-100"
-          disabled={!!editingId}
-        />
-
-        <label className="block mb-2 text-sm font-medium">Instrument</label>
-        <select
-          value={instrument}
-          onChange={(e) => setInstrument(e.target.value)}
-          className="border px-3 py-2 w-full mb-4 rounded bg-gray-700 text-gray-100"
-        >
-          <option value="">-- Select Instrument --</option>
-          {instruments.map((inst) => (
-            <option key={inst} value={inst}>
-              {inst}
-            </option>
-          ))}
-        </select>
-
-        <label className="flex items-center gap-2 mb-4">
-          <input
-            type="checkbox"
-            checked={available}
-            onChange={(e) => setAvailable(e.target.checked)}
-            className="w-4 h-4 accent-blue-500"
-          />
-          Available
-        </label>
-
-        <div className="flex gap-2 mb-3">
-          <button
-            onClick={saveAvailability}
-            disabled={!date || !fullName || loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
-          >
-            {loading ? "Saving..." : editingId ? "Update" : "Save"}
-          </button>
-          {editingId && (
-            <button
-              onClick={cancelEdit}
-              className="bg-gray-500 text-white px-4 py-2 rounded w-full"
-            >
-              Cancel
-            </button>
-          )}
+        {/* --- Form --- */}
+        <div className="mb-6">
+          <input type="date" value={date} onChange={e=>setDate(e.target.value)} className="border px-3 py-2 mb-2 w-full rounded bg-gray-700 text-gray-100" />
+          <input type="text" value={fullName} onChange={e=>setFullName(e.target.value)} placeholder="Your Name" disabled={!!editingId} className="border px-3 py-2 mb-2 w-full rounded bg-gray-700 text-gray-100" />
+          <select value={instrument} onChange={e=>setInstrument(e.target.value)} className="border px-3 py-2 mb-2 w-full rounded bg-gray-700 text-gray-100">
+            <option value="">-- Select Instrument --</option>
+            {instruments.map(inst=><option key={inst} value={inst}>{inst}</option>)}
+          </select>
+          <label className="flex items-center gap-2 mb-2">
+            <input type="checkbox" checked={available} onChange={e=>setAvailable(e.target.checked)} className="w-4 h-4 accent-blue-500" /> Available
+          </label>
+          <div className="flex gap-2 mb-2">
+            <button onClick={saveAvailability} disabled={!date||!fullName||loading} className="bg-blue-600 px-4 py-2 rounded w-full">{loading ? "Saving..." : editingId?"Update":"Save"}</button>
+            {editingId && <button onClick={cancelEdit} className="bg-gray-500 px-4 py-2 rounded w-full">Cancel</button>}
+          </div>
+          {message && <p className="text-sm">{message}</p>}
         </div>
 
-        {message && <p className="mt-1 text-sm">{message}</p>}
-
-        {/* --- CLEANED AVAILABILITY TABLE --- */}
-        <div className="mt-6">
-          <h2 className="font-semibold mb-2">All Availability Summary</h2>
-          {grouped.length > 0 ? (
-            grouped.map((group) => (
-              <div key={group.month} className="mb-6">
-                <h3 className="font-semibold text-lg mb-2">{group.month}</h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-gray-700 text-gray-100">
-                        <th className="px-3 py-2 border">Date</th>
-                        <th className="px-3 py-2 border">Name</th>
-                        <th className="px-3 py-2 border">Instrument</th>
-                        <th className="px-3 py-2 border">Status</th>
-                        <th className="px-3 py-2 border">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-gray-800 text-gray-100">
-                      {group.entries.map((entry) => {
-                        const isYou = entry.full_name === myName;
-                        let instrumentEmoji = "";
-                        switch (entry.instrument) {
-                          case "Guitar":
-                          case "Acoustic":
-                            instrumentEmoji = "🎸";
-                            break;
-                          case "Organ":
-                            instrumentEmoji = "🎹";
-                            break;
-                          case "Drum":
-                            instrumentEmoji = "🥁";
-                            break;
-                          case "Bass":
-                            instrumentEmoji = "🎸";
-                            break;
-                          default:
-                            instrumentEmoji = "";
-                        }
-
-                        return (
-                          <tr
-                            key={entry.id}
-                            className={`hover:bg-gray-700 transition-colors ${
-                              isYou ? "bg-yellow-600 text-white" : ""
-                            }`}
-                          >
-                            <td className="px-3 py-2 border">{entry.date}</td>
-                            <td className="px-3 py-2 border font-semibold">{entry.full_name}</td>
-                            <td className="px-3 py-2 border">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{instrumentEmoji}</span>
-                                <span>{entry.instrument || "-"}</span>
-                              </div>
-                            </td>
-                            <td className="px-3 py-2 border">
-                              {entry.available ? "✅ Available" : "❌ Not available"}
-                            </td>
-                            <td className="px-3 py-2 border flex gap-2">
-                              {isYou && (
-                                <>
-                                  <button
-                                    onClick={() => startEdit(entry)}
-                                    className="text-green-400 hover:underline text-sm"
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    onClick={() => deleteAvailability(entry.id)}
-                                    className="text-red-500 hover:underline text-sm"
-                                  >
-                                    Delete
-                                  </button>
-                                </>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-400">No availability saved yet.</p>
-          )}
-        </div>
-
-        {/* --- MUSICIAN ASSIGNMENTS --- */}
-        <div className="mt-8 border-t border-gray-700 pt-6">
-          <h2 className="font-semibold mb-4">Musician Assignments</h2>
-
-          {/* Musician Assignment Form */}
-          <label className="block mb-2 text-sm font-medium">Date</label>
-          <input
-            type="date"
-            value={musicianDate}
-            onChange={(e) => setMusicianDate(e.target.value)}
-            className="border px-3 py-2 w-full mb-4 rounded bg-gray-700 text-gray-100"
-          />
-
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            {instruments.map((inst) => (
-              <div key={inst}>
-                <label className="block mb-1 text-sm font-medium">{inst}</label>
-                <input
-                  type="text"
-                  placeholder={`Enter ${inst} name`}
-                  value={musiciansPerInstrument[inst] || ""}
-                  onChange={(e) =>
-                    setMusiciansPerInstrument((prev) => ({
-                      ...prev,
-                      [inst]: e.target.value,
-                    }))
+        {/* --- Calendar --- */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <button onClick={prevMonth} className="px-3 py-1 bg-gray-700 rounded">Prev</button>
+            <h2 className="text-xl font-semibold">{monthName}</h2>
+            <button onClick={nextMonth} className="px-3 py-1 bg-gray-700 rounded">Next</button>
+          </div>
+          <div className="grid grid-cols-7 text-center font-semibold mb-1">{weekdays.map(d=><div key={d}>{d}</div>)}</div>
+          {calendarGrid.map((week, i) =>
+            <div key={i} className="grid grid-cols-7 gap-1 mb-1">
+              {week.map((entries, j) => {
+                const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+                const dayNumber = (() => {
+                  if (!entries) {
+                    const weekIndex = i;
+                    const dayIndex = j;
+                    const dateNum = weekIndex * 7 + dayIndex - firstDay.getDay() + 1;
+                    const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+                    if (dateNum < 1 || dateNum > lastDayOfMonth) return null;
+                    return dateNum;
+                  } else {
+                    return parseInt(entries[0].date.split("-")[2]);
                   }
-                  className="border px-3 py-2 w-full rounded bg-gray-700 text-gray-100"
-                />
+                })();
+
+                return (
+                  <div key={j} className={`border rounded p-2 flex flex-col justify-start items-start overflow-hidden text-xs
+                    ${entries?.some(e => e.full_name === myName) ? "bg-yellow-600 text-gray-900" : "bg-gray-700"}`}>
+                    <span className="font-semibold">{dayNumber}</span>
+                    <div className="overflow-y-auto max-h-36 w-full mt-1"> {/* scrollable div for multiple entries */}
+                      {entries?.map(e => (
+                        <div key={e.id} className="mt-1 border-b border-gray-600 pb-1">
+                          <span>{e.instrument ? e.instrument + " 🎸" : ""}</span><br/>
+                          <span className="font-semibold">{e.full_name}</span>
+                          <div className="flex gap-1 mt-1">
+                            {e.full_name === myName && <>
+                              <button onClick={() => startEdit(e)} className="text-green-400 text-xs">Edit</button>
+                              <button onClick={() => deleteAvailability(e.id)} className="text-red-500 text-xs">Delete</button>
+                            </>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* --- Musician Assignments --- */}
+        <div className="border-t border-gray-700 pt-4">
+          <h2 className="font-semibold mb-2">Musician Assignments</h2>
+          <input type="date" value={musicianDate} onChange={e=>setMusicianDate(e.target.value)} className="border px-3 py-2 mb-2 w-full rounded bg-gray-700 text-gray-100" />
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            {instruments.map(inst => (
+              <div key={inst}>
+                <label>{inst}</label>
+                <input type="text" placeholder={`Enter ${inst}`} value={musiciansPerInstrument[inst] || ""}
+                  onChange={e => setMusiciansPerInstrument(prev => ({ ...prev, [inst]: e.target.value }))}
+                  className="border px-2 py-1 w-full rounded bg-gray-700 text-gray-100"/>
               </div>
             ))}
           </div>
+          <button onClick={saveMusicianAssignment} disabled={!musicianDate || musicianLoading} className="bg-green-600 px-4 py-2 rounded w-full">{musicianLoading ? "Saving..." : editingMusicianDate ? "Update All" : "Save All"}</button>
+          {musicianMessage && <p className="text-sm">{musicianMessage}</p>}
 
-          <div className="flex gap-2 mb-3">
-            <button
-              onClick={saveMusicianAssignment}
-              disabled={!musicianDate || musicianLoading}
-              className="bg-green-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
-            >
-              {musicianLoading ? "Saving..." : editingMusicianDate ? "Update All" : "Save All"}
-            </button>
-          </div>
-
-          {musicianMessage && <p className="mt-1 text-sm">{musicianMessage}</p>}
-
-          {/* Musician Assignment Table */}
-          {musicianAssignments.length > 0 ? (
-            <div className="overflow-x-auto mt-4">
-              <table className="min-w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-700 text-gray-100">
-                    <th className="px-3 py-2 border">Date</th>
-                    {instruments.map((inst) => (
-                      <th key={inst} className="px-3 py-2 border">
-                        {inst}{" "}
-                        {inst === "Guitar" || inst === "Acoustic"
-                          ? "🎸"
-                          : inst === "Organ"
-                          ? "🎹"
-                          : inst === "Drum"
-                          ? "🥁"
-                          : ""}
-                      </th>
-                    ))}
-                    <th className="px-3 py-2 border">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-gray-800 text-gray-100">
-                  {Array.from(new Set(musicianAssignments.map((m) => m.date)))
-                    .sort()
-                    .map((date) => {
-                      const assignmentsForDate = musicianAssignments.filter((m) => m.date === date);
-                      return (
-                        <tr key={date} className="hover:bg-gray-700 transition-colors">
-                          <td className="px-3 py-2 border font-semibold">{date}</td>
-                          {instruments.map((inst) => {
-                            const musician = assignmentsForDate.find((m) => m.instrument === inst);
-                            let emoji = "";
-                            switch (inst) {
-                              case "Guitar":
-                              case "Acoustic":
-                                emoji = "🎸";
-                                break;
-                              case "Organ":
-                                emoji = "🎹";
-                                break;
-                              case "Drum":
-                                emoji = "🥁";
-                                break;
-                              default:
-                                emoji = "";
-                            }
-                            return (
-                              <td key={inst} className="px-3 py-2 border">
-                                {musician ? (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-lg">{emoji}</span>
-                                    <span>{musician.musician_name}</span>
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </td>
-                            );
-                          })}
-                          <td className="px-3 py-2 border flex gap-2">
-                            <button
-                              onClick={() => editMusician(date)}
-                              className="text-green-400 hover:underline text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => deleteMusician(date)}
-                              className="text-red-500 hover:underline text-sm"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-gray-400">No musician assignments yet.</p>
-          )}
+          {musicianAssignments.length > 0 && <div className="mt-4">
+            {Array.from(new Set(musicianAssignments.map(m => m.date))).sort().map(date => {
+              const assigns = musicianAssignments.filter(m => m.date === date);
+              return <div key={date} className="border p-2 mb-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">{date}</span>
+                  <div className="flex gap-1">
+                    <button onClick={() => editMusician(date)} className="text-green-400 text-xs">Edit</button>
+                    <button onClick={() => deleteMusician(date)} className="text-red-500 text-xs">Delete</button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  {instruments.map(inst => {
+                    const m = assigns.find(a => a.instrument === inst);
+                    return <div key={inst}>{inst}: {m ? m.musician_name : "-"}</div>
+                  })}
+                </div>
+              </div>
+            })}
+          </div>}
         </div>
+
       </div>
     </div>
   );
