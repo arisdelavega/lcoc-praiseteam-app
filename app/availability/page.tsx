@@ -38,7 +38,6 @@ export default function AvailabilityPage() {
   const [myName, setMyName] = useState<string>("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  // Instruments list without Piano
   const instruments = ["Drum", "Bass", "Guitar", "Acoustic", "Organ", "Pinagkitan"];
 
   // --- Musician assignment states ---
@@ -188,7 +187,7 @@ export default function AvailabilityPage() {
   });
   sortedMonths.forEach((month) => grouped.push({ month, entries: monthMap[month] }));
 
-  // --- Save musician assignments (with edit support) ---
+  // --- Save musician assignments ---
   const saveMusicianAssignment = async () => {
     if (!musicianDate) {
       setMusicianMessage("Please select a date.");
@@ -239,7 +238,7 @@ export default function AvailabilityPage() {
     setMusicianLoading(false);
   };
 
-  // --- Delete musician assignment for a date ---
+  // --- Delete musician assignment ---
   const deleteMusician = async (date: string) => {
     const confirm = window.confirm("Are you sure you want to delete all musicians for this date?");
     if (!confirm) return;
@@ -254,7 +253,7 @@ export default function AvailabilityPage() {
     }
   };
 
-  // --- Edit musician assignment for a date ---
+  // --- Edit musician assignment ---
   const editMusician = (date: string) => {
     const assignmentsForDate = musicianAssignments.filter((m) => m.date === date);
     const newMap: { [key: string]: string } = {};
@@ -336,50 +335,85 @@ export default function AvailabilityPage() {
 
         {message && <p className="mt-1 text-sm">{message}</p>}
 
-        {/* Grouped Availability */}
+        {/* --- CLEANED AVAILABILITY TABLE --- */}
         <div className="mt-6">
           <h2 className="font-semibold mb-2">All Availability Summary</h2>
           {grouped.length > 0 ? (
             grouped.map((group) => (
-              <div key={group.month} className="mb-4">
-                <h3 className="font-semibold text-lg mb-1">{group.month}</h3>
-                <ul>
-                  {group.entries.map((entry) => {
-                    const isYou = entry.full_name === myName;
-                    return (
-                      <li
-                        key={entry.id}
-                        className={`flex justify-between items-center border-b border-gray-700 py-1 px-2 ${
-                          isYou ? "bg-yellow-600 text-white" : ""
-                        }`}
-                      >
-                        <div>
-                          {entry.full_name} ({entry.instrument || "no instrument"}) - {entry.date}
-                          {isYou ? " (You)" : ""}
-                        </div>
-                        <div className="flex gap-2">
-                          <span>{entry.available ? "✅ Available" : "❌ Not available"}</span>
-                          {isYou && (
-                            <>
-                              <button
-                                onClick={() => startEdit(entry)}
-                                className="text-green-400 hover:underline text-sm"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => deleteAvailability(entry.id)}
-                                className="text-red-500 hover:underline text-sm"
-                              >
-                                Delete
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+              <div key={group.month} className="mb-6">
+                <h3 className="font-semibold text-lg mb-2">{group.month}</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-700 text-gray-100">
+                        <th className="px-3 py-2 border">Date</th>
+                        <th className="px-3 py-2 border">Name</th>
+                        <th className="px-3 py-2 border">Instrument</th>
+                        <th className="px-3 py-2 border">Status</th>
+                        <th className="px-3 py-2 border">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-gray-800 text-gray-100">
+                      {group.entries.map((entry) => {
+                        const isYou = entry.full_name === myName;
+                        let instrumentEmoji = "";
+                        switch (entry.instrument) {
+                          case "Guitar":
+                          case "Acoustic":
+                            instrumentEmoji = "🎸";
+                            break;
+                          case "Organ":
+                            instrumentEmoji = "🎹";
+                            break;
+                          case "Drum":
+                            instrumentEmoji = "🥁";
+                            break;
+                          case "Bass":
+                            instrumentEmoji = "🎸";
+                            break;
+                          default:
+                            instrumentEmoji = "";
+                        }
+
+                        return (
+                          <tr
+                            key={entry.id}
+                            className={`hover:bg-gray-700 transition-colors ${
+                              isYou ? "bg-yellow-600 text-white" : ""
+                            }`}
+                          >
+                            <td className="px-3 py-2 border">{entry.date}</td>
+                            <td className="px-3 py-2 border font-semibold">{entry.full_name}</td>
+                            <td className="px-3 py-2 border flex items-center gap-1">
+                              {instrumentEmoji} {entry.instrument || "-"}
+                            </td>
+                            <td className="px-3 py-2 border">
+                              {entry.available ? "✅ Available" : "❌ Not available"}
+                            </td>
+                            <td className="px-3 py-2 border flex gap-2">
+                              {isYou && (
+                                <>
+                                  <button
+                                    onClick={() => startEdit(entry)}
+                                    className="text-green-400 hover:underline text-sm"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => deleteAvailability(entry.id)}
+                                    className="text-red-500 hover:underline text-sm"
+                                  >
+                                    Delete
+                                  </button>
+                                </>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             ))
           ) : (
@@ -387,7 +421,7 @@ export default function AvailabilityPage() {
           )}
         </div>
 
-        {/* Musician Assignment Form & Table */}
+        {/* --- MUSICIAN ASSIGNMENTS --- */}
         <div className="mt-8 border-t border-gray-700 pt-6">
           <h2 className="font-semibold mb-4">Musician Assignments</h2>
 
@@ -442,7 +476,13 @@ export default function AvailabilityPage() {
                     {instruments.map((inst) => (
                       <th key={inst} className="px-3 py-2 border">
                         {inst}{" "}
-                        {inst === "Guitar" || inst === "Acoustic" ? "🎸" : inst === "Organ" ? "🎹" : inst === "Drum" ? "🥁" : ""}
+                        {inst === "Guitar" || inst === "Acoustic"
+                          ? "🎸"
+                          : inst === "Organ"
+                          ? "🎹"
+                          : inst === "Drum"
+                          ? "🥁"
+                          : ""}
                       </th>
                     ))}
                     <th className="px-3 py-2 border">Actions</th>
@@ -478,13 +518,7 @@ export default function AvailabilityPage() {
                             }
                             return (
                               <td key={inst} className="px-3 py-2 border">
-                                {musician ? (
-                                  <span className="flex items-center gap-1">
-                                    {emoji} {musician.musician_name}
-                                  </span>
-                                ) : (
-                                  "-"
-                                )}
+                                {musician ? `${emoji} ${musician.musician_name}` : "-"}
                               </td>
                             );
                           })}
