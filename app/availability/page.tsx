@@ -51,9 +51,17 @@ export default function AvailabilityPage() {
     fetchMusicianAssignments();
   }, []);
 
+  // --- Utility to format date correctly ---
+  const formatDate = (d: Date) => {
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const day = d.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   // --- Fetch Availability ---
   const fetchAllAvailability = async () => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = formatDate(new Date());
     const { data, error } = await supabase
       .from("availability")
       .select("*")
@@ -65,7 +73,7 @@ export default function AvailabilityPage() {
 
   // --- Fetch Musician Assignments ---
   const fetchMusicianAssignments = async () => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = formatDate(new Date());
     const { data, error } = await supabase
       .from("musician_assignment")
       .select("*")
@@ -137,8 +145,6 @@ export default function AvailabilityPage() {
   };
 
   // --- Calendar Logic ---
-  const formatDate = (d: Date) => d.toISOString().split("T")[0];
-
   const generateMonthGrid = (month: Date) => {
     const year = month.getFullYear();
     const mon = month.getMonth();
