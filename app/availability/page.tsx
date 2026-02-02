@@ -157,7 +157,9 @@ export default function AvailabilityPage() {
 
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const dateStr = formatDate(new Date(year, mon, day));
-      const entriesForDay = summaryList.filter((e) => e.date === dateStr);
+      const entriesForDay = summaryList
+        .filter((e) => e.date === dateStr)
+        .sort((a, b) => b.id - a.id); // latest on top
       week.push(entriesForDay.length ? entriesForDay : null);
       if (week.length === 7) { grid.push(week); week = []; }
     }
@@ -229,7 +231,6 @@ export default function AvailabilityPage() {
     }
   };
 
-  // --- Render ---
   return (
     <div className="bg-gray-900 min-h-screen text-gray-100 p-4 relative">
       <NavbarTopRight />
@@ -328,7 +329,7 @@ export default function AvailabilityPage() {
           {musicianAssignments.length > 0 && (
             <div className="mt-4 space-y-2">
               {Array.from(new Set(musicianAssignments.map(m => m.date)))
-                .sort()
+                .sort((a,b) => new Date(b).getTime() - new Date(a).getTime()) // latest date on top
                 .map(date => {
                   const assigns = musicianAssignments.filter(m => m.date === date);
                   return (
