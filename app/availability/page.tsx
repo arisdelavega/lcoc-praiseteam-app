@@ -32,7 +32,7 @@ export default function AvailabilityPage() {
   const [myName, setMyName] = useState<string>("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const instruments = ["Drum", "Bass", "Guitar", "Acoustic", "Organ", "Pinagkitan"];
+  const instruments = ["Drum", "Bass", "Guitar", "Acoustic", "Organ", "Pinagkitran"];
 
   // Musician
   const [musicianDate, setMusicianDate] = useState<string>("");
@@ -226,7 +226,7 @@ export default function AvailabilityPage() {
       case "Guitar": return "text-yellow-400";
       case "Acoustic": return "text-orange-400";
       case "Organ": return "text-purple-400";
-      case "Pinagkitan": return "text-pink-400";
+      case "Pinagkitran": return "text-pink-400";
       default: return "text-gray-100";
     }
   };
@@ -335,7 +335,10 @@ export default function AvailabilityPage() {
                   return (
                     <div key={date} className="border rounded p-3 bg-gray-800 hover:bg-gray-700 transition">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-semibold text-lg">{date}</span>
+                        {/* --- Formatted Date --- */}
+                        <span className="font-semibold text-lg">
+                          {new Date(date).toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" })}
+                        </span>
                         <div className="flex gap-1">
                           <button onClick={() => editMusician(date)} className="text-green-400 text-xs">Edit</button>
                           <button onClick={() => deleteMusician(date)} className="text-red-500 text-xs">Delete</button>
